@@ -20,11 +20,11 @@ npm install
 
 ### Compile and Hot-Reload for Development
 
-Open http://localhost:5173
-
 ```sh
 npm run dev
 ```
+
+Open UI - http://localhost:5173
 
 ### Type-Check, Compile and Minify for Production
 
