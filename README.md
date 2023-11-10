@@ -9,7 +9,6 @@ Banking User Interface.
 ## Tech Stack
 
 - VueJS, Composition API
-- Vitest, Cypress
 - PrimeVue, PrimeFlex
 
 ## Project Setup
@@ -20,6 +19,8 @@ npm install
 
 ### Compile and Hot-Reload for Development
 
+Open http://localhost:5173
+
 ```sh
 npm run dev
 ```
@@ -28,23 +29,4 @@ npm run dev
 
 ```sh
 npm run build
-```
-
-### Run Unit Tests with Vitest
-
-```sh
-npm run test:unit
-```
-
-### Run End-to-End Tests with Cypress
-
-```sh
-npm run build
-npm run test:e2e
-```
-
-### Lint
-
-```sh
-npm run lint
 ```
