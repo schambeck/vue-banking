@@ -6,6 +6,8 @@
 
 Banking User Interface.
 
+  <img src="app.png" alt="UI Banking">
+
 ## Tech Stack
 
 - VueJS, Composition API
