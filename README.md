@@ -41,3 +41,17 @@ npm run start
 ```
 
 Frontend: http://localhost:5173
+
+### Build docker image
+
+```sh
+npm run docker-build
+```
+
+### Run docker container
+
+```sh
+npm run docker-run
+```
+
+Frontend: http://localhost:5173
