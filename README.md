@@ -11,6 +11,7 @@ Banking User Interface.
 
 - VueJS, Composition API
 - PrimeVue, PrimeFlex
+- Keycloak: OAuth2, SSO
 
 ## Project Setup
 
