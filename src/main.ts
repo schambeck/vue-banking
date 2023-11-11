@@ -62,7 +62,7 @@ app.directive("ripple", Ripple);
 app.mount("#app");
 
 export const keycloak = new Keycloak({
-  url: "http://localhost:9000",
+  url: "http://keycloak.localhost:9000",
   realm: "banking",
   clientId: "vue-banking",
 });
