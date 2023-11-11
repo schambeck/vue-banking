@@ -32,3 +32,12 @@ Open UI - http://localhost:5173
 ```sh
 npm run build
 ```
+
+### Serve application
+
+```sh
+npm install -g serve
+npm run start
+```
+
+Frontend: http://localhost:5173
