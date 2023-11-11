@@ -1,4 +1,4 @@
-# ui-vue-banking
+# UI Banking
 [![build](https://github.com/schambeck/vue-banking/actions/workflows/node.js.yml/badge.svg)](https://github.com/schambeck/vue-banking/actions/workflows/node.js.yml)
 
 ## Description
