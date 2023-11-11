@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import { onMounted, ref, watch } from "vue";
-import { useToast } from "primevue/usetoast";
 import { useFindPageSaldoApi, useRemoveSaldoApi } from "@/service/saldo.api";
 
 const route = useRouter();
-const toast = useToast();
 const findPageApi = useFindPageSaldoApi();
 const removeApi = useRemoveSaldoApi();
 const fakeMovimentacoes = [{}, {}, {}, {}, {}];
@@ -17,18 +15,6 @@ onMounted(() => {
 
 function rowClick(event: any) {
   route.push({ name: "saldo-detail", params: { id: event.data.id } });
-}
-
-function removeSaldo(id: number) {
-  removeApi.doFetch(id).then(() => {
-    toast.add({
-      severity: "success",
-      summary: "Success",
-      detail: `Saldo removed: ${id}`,
-      life: 3000,
-    });
-    refresh();
-  });
 }
 
 function isRemoving(id: number) {
@@ -49,13 +35,10 @@ async function doSearch() {
 
 watch(search, doSearch);
 
-function newSaldo() {
-  route.push({ name: "saldo-detail", params: { id: null } });
-}
-
 const formatDecimal = (value: string) => {
   if (value)
     return parseFloat(value).toLocaleString("pt-BR", {
+      maximumFractionDigits: 2,
       minimumFractionDigits: 2,
     });
 };
@@ -85,9 +68,7 @@ function onPage(event: any) {
   <Card>
     <template #header>
       <Toolbar>
-        <template #start>
-        </template>
-        <template #end>
+        <template #center>
           <span class="p-input-icon-left">
             <i class="pi pi-search" />
             <InputText
@@ -139,17 +120,8 @@ function onPage(event: any) {
             </template>
           </Column>
           <Column
-            field="valor"
-            header="Valor"
-            headerStyle="width: 10%"
-            class="cursor-pointer"
-          >
-            <template #body>
-              <Skeleton height="1.1rem" />
-            </template>
-          </Column>
-          <Column
-            header="Actions"
+            field="saldo"
+            header="Saldo"
             headerStyle="width: 10%"
             class="cursor-pointer"
           >
@@ -185,7 +157,7 @@ function onPage(event: any) {
           <Column
             field="conta"
             header="Conta"
-            headerStyle="width: 10%"
+            headerStyle="width: 20%"
             class="cursor-pointer"
           >
             <template #body="slotProps">
@@ -194,14 +166,28 @@ function onPage(event: any) {
                 v-bind:class="{ 'line-through': isRemoving(slotProps.data.id) }"
               >
                 {{ slotProps.data.conta.numero }} /
-                {{ slotProps.data.conta.agencia }} -
+                {{ slotProps.data.conta.agencia }}
+              </div>
+            </template>
+          </Column>
+          <Column
+            field="correntista"
+            header="Correntista"
+            headerStyle="width: 20%"
+            class="cursor-pointer"
+          >
+            <template #body="slotProps">
+              <div
+                style="text-align: left"
+                v-bind:class="{ 'line-through': isRemoving(slotProps.data.id) }"
+              >
                 {{ slotProps.data.conta.correntista.nome }}
               </div>
             </template>
           </Column>
           <Column
-            field="valor"
-            header="Valor"
+            field="saldo"
+            header="Saldo"
             headerStyle="width: 10%"
             class="cursor-pointer"
           >
@@ -210,24 +196,7 @@ function onPage(event: any) {
                 style="text-align: right"
                 v-bind:class="{ 'line-through': isRemoving(slotProps.data.id) }"
               >
-                {{ formatDecimal(slotProps.data.valor) }}
-              </div>
-            </template>
-          </Column>
-          <Column
-            header="Actions"
-            headerStyle="width: 10%"
-            class="cursor-pointer"
-          >
-            <template #body="slotProps">
-              <div style="text-align: center">
-                <Button
-                  icon="pi pi-trash"
-                  class="p-button-danger p-button-text p-button-sm p-0"
-                  v-tooltip.left="'Remove'"
-                  :loading="isRemoving(slotProps.data.id)"
-                  @click="removeSaldo(slotProps.data.id)"
-                />
+                {{ formatDecimal(slotProps.data.valor.toFixed(2)) }}
               </div>
             </template>
           </Column>

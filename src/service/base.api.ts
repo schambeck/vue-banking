@@ -76,39 +76,17 @@ export class BaseFindById<T, ID> {
   }
 }
 
-export class BaseFindByNumerAndAgencia<T> {
-  constructor(public apiUrl: string) {}
-  entity = ref<T>();
-  error = ref<any>();
-  processing = ref(false);
-
-  async doFetch(numero: number, agencia: string) {
-    this.error.value = undefined;
-    this.processing.value = true;
-
-    const res = await fetch(`${this.apiUrl}/${numero}/${agencia}`);
-    const response = await res.json();
-    if (res.ok) {
-      this.entity.value = response;
-    } else {
-      console.error(response);
-      this.error.value = response;
-    }
-    this.processing.value = false;
-  }
-}
-
 export class BaseFindPage<T> {
   constructor(public apiUrl: string) {}
   page = ref<Paginated<T>>() as Ref<Paginated<T>>;
   error = ref<any>();
   processing = ref(false);
 
-  async doFetch(pageNumber: number, limit: number, search: string) {
+  async doFetch(pageNumber: number, limit: number, text: string) {
     this.error.value = undefined;
     this.processing.value = true;
 
-    const res = await fetch(this.getUrl(pageNumber, limit, search));
+    const res = await fetch(this.getUrl(pageNumber, limit, text));
     const response = await res.json();
     if (res.ok) {
       this.page.value = response;
@@ -119,11 +97,11 @@ export class BaseFindPage<T> {
     this.processing.value = false;
   }
 
-  getUrl(pageNumber: number, limit: number, search: string) {
+  getUrl(pageNumber: number, limit: number, text: string) {
     const params = new URLSearchParams({
       page: pageNumber.toString(),
       limit: limit.toString(),
-      text: search,
+      text: text,
     });
     return `${this.apiUrl}?${params.toString()}`;
   }

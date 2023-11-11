@@ -30,7 +30,7 @@ import Message from "primevue/message";
 import Ripple from "primevue/ripple";
 import ToastService from "primevue/toastservice";
 import Calendar from "primevue/calendar";
-import Chart from "primevue/chart";
+import Breadcrumb from "primevue/breadcrumb";
 
 const app = createApp(App);
 

@@ -1,32 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import {
-  useCreateMovimentacaoApi,
-  useFindByIdMovimentacaoApi,
-  useUpdateMovimentacaoApi,
-} from "@/service/movimentacao.api";
-import { useToast } from "primevue/usetoast";
+import { onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
+import { useCreateMovimentacaoApi, useFindByIdMovimentacaoApi } from "@/service/movimentacao.api";
 
 const route = useRoute();
-const router = useRouter();
-const toast = useToast();
 const createApi = useCreateMovimentacaoApi();
-const updateApi = useUpdateMovimentacaoApi();
 const findByIdApi = useFindByIdMovimentacaoApi();
 const movimentacao = ref();
-
-const processing = computed(() => {
-  return (
-    createApi.processing.value ||
-    updateApi.processing.value ||
-    findByIdApi.processing.value
-  );
-});
-
-const saving = computed(() => {
-  return createApi.processing.value || updateApi.processing.value;
-});
 
 onMounted(() => {
   if (route.params.id === "") {
@@ -38,45 +18,6 @@ onMounted(() => {
       .then(() => (movimentacao.value = findByIdApi.entity.value));
   }
 });
-
-function newMovimentacao() {
-  movimentacao.value = {};
-}
-
-function save() {
-  if (movimentacao.value) {
-    if (movimentacao.value.id) {
-      const id = parseInt(route.params.id.toString());
-      updateApi.doFetch(id, movimentacao.value).then(() => {
-        if (updateApi.error.value == null) {
-          toast.add({
-            severity: "success",
-            summary: "Success",
-            detail: `Movimentacao updated: ${updateApi.entity.value?.id}`,
-            life: 3000,
-          });
-          router.push({ name: "list-movimentacao" });
-          movimentacao.value = updateApi.entity.value;
-        }
-        return movimentacao.value;
-      });
-    } else {
-      createApi.doFetch(movimentacao.value).then(() => {
-        if (createApi.error.value == null) {
-          toast.add({
-            severity: "success",
-            summary: "Success",
-            detail: `Movimentacao created: ${createApi.entity.value?.id}`,
-            life: 3000,
-          });
-          router.push({ name: "list-movimentacao" });
-          movimentacao.value = createApi.entity.value;
-        }
-        return movimentacao.value;
-      });
-    }
-  }
-}
 </script>
 
 <style scoped>
@@ -158,14 +99,14 @@ function save() {
             v-model="movimentacao.data"
             :manual-input="false"
             date-format="yy-mm-dd"
-            autofocus
+            disabled
           />
         </div>
         <div class="field">
           <label for="tipo" class="w-full">Tipo</label>
-          <InputText id="tipo" type="text" v-model="movimentacao.tipo" />
+          <InputText id="tipo" type="text" v-model="movimentacao.tipo" disabled />
         </div>
-        <div class="field" style="margin-bottom: 0">
+        <div class="field">
           <label for="valor" class="w-full">Valor</label>
           <InputNumber
             input-id="valor"
@@ -174,9 +115,10 @@ function save() {
             locale="pt-BR"
             :minFractionDigits="2"
             :maxFractionDigits="2"
+            disabled
           />
         </div>
-        <div class="field" style="margin-bottom: 0">
+        <div class="field">
           <label for="saldoAnterior" class="w-full">Saldo Ant</label>
           <InputNumber
             input-id="saldoAnterior"
@@ -185,6 +127,7 @@ function save() {
             locale="pt-BR"
             :minFractionDigits="2"
             :maxFractionDigits="2"
+            disabled
           />
         </div>
       </div>

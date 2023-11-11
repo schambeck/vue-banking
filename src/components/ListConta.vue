@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import { onMounted, ref, watch } from "vue";
-import { useToast } from "primevue/usetoast";
 import { useFindPageContaApi, useRemoveContaApi } from "@/service/conta.api";
 
 const route = useRouter();
-const toast = useToast();
 const findPageApi = useFindPageContaApi();
 const removeApi = useRemoveContaApi();
 const fakeMovimentacoes = [{}, {}, {}, {}, {}];
@@ -17,18 +15,6 @@ onMounted(() => {
 
 function rowClick(event: any) {
   route.push({ name: "list-movimentacao", params: { id: event.data.id } });
-}
-
-function removeConta(id: number) {
-  removeApi.doFetch(id).then(() => {
-    toast.add({
-      severity: "success",
-      summary: "Success",
-      detail: `Conta removed: ${id}`,
-      life: 3000,
-    });
-    refresh();
-  });
 }
 
 function isRemoving(id: number) {
@@ -48,17 +34,6 @@ async function doSearch() {
 }
 
 watch(search, doSearch);
-
-function newConta() {
-  route.push({ name: "conta-detail", params: { id: null } });
-}
-
-const formatDecimal = (value: string) => {
-  if (value)
-    return parseFloat(value).toLocaleString("pt-BR", {
-      minimumFractionDigits: 2,
-    });
-};
 
 function onPage(event: any) {
   findPageApi.doFetch(event.page, event.rows, search.value);
@@ -85,9 +60,7 @@ function onPage(event: any) {
   <Card>
     <template #header>
       <Toolbar>
-        <template #start>
-        </template>
-        <template #end>
+        <template #center>
           <span class="p-input-icon-left">
             <i class="pi pi-search" />
             <InputText
@@ -158,15 +131,6 @@ function onPage(event: any) {
               <Skeleton height="1.1rem" />
             </template>
           </Column>
-          <Column
-            header="Actions"
-            headerStyle="width: 10%"
-            class="cursor-pointer"
-          >
-            <template #body>
-              <Skeleton height="1.1rem" />
-            </template>
-          </Column>
         </DataTable>
       </div>
       <div v-else-if="findPageApi.page.value?.content">
@@ -187,6 +151,7 @@ function onPage(event: any) {
               <div
                 style="text-align: left"
                 v-bind:class="{ 'line-through': isRemoving(slotProps.data.id) }"
+                v-tooltip.top="'Ver Extrato'"
               >
                 {{ slotProps.data.id }}
               </div>
@@ -202,6 +167,7 @@ function onPage(event: any) {
               <div
                 style="text-align: left"
                 v-bind:class="{ 'line-through': isRemoving(slotProps.data.id) }"
+                v-tooltip.top="'Ver Extrato'"
               >
                 {{ slotProps.data.correntista.nome }}
               </div>
@@ -217,6 +183,7 @@ function onPage(event: any) {
               <div
                 style="text-align: left"
                 v-bind:class="{ 'line-through': isRemoving(slotProps.data.id) }"
+                v-tooltip.top="'Ver Extrato'"
               >
                 {{ slotProps.data.numero }}
               </div>
@@ -232,25 +199,9 @@ function onPage(event: any) {
               <div
                 style="text-align: left"
                 v-bind:class="{ 'line-through': isRemoving(slotProps.data.id) }"
+                v-tooltip.top="'Ver Extrato'"
               >
                 {{ slotProps.data.agencia }}
-              </div>
-            </template>
-          </Column>
-          <Column
-            header="Actions"
-            headerStyle="width: 10%"
-            class="cursor-pointer"
-          >
-            <template #body="slotProps">
-              <div style="text-align: center">
-                <Button
-                  icon="pi pi-trash"
-                  class="p-button-danger p-button-text p-button-sm p-0"
-                  v-tooltip.left="'Remove'"
-                  :loading="isRemoving(slotProps.data.id)"
-                  @click="removeConta(slotProps.data.id)"
-                />
               </div>
             </template>
           </Column>

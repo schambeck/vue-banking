@@ -33,7 +33,7 @@ const items = ref([
       },
       {
         label: "Extrato",
-        icon: "pi pi-shopping-cart",
+         icon: "pi pi-book",
         to: "/list-conta",
       },
     ],
@@ -43,7 +43,7 @@ const items = ref([
 
 <style scoped>
 ::v-deep(.p-menu) {
-  bmovimentacao-radius: 12px !important;
+  border-radius: 12px !important;
 }
 ::v-deep(.p-menu ul) {
   margin: 2px !important;

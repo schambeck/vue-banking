@@ -1,34 +1,19 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from "vue-router";
 import { onMounted, ref, watch } from "vue";
-import { useToast } from "primevue/usetoast";
 import moment from "moment/moment";
-import {
-  API_URL,
-  useFindPageMovimentacaoApi,
-  useRemoveMovimentacaoApi,
-} from "@/service/movimentacao.api";
-import type { Conta } from "@/entity/conta.entity";
-import {
-  useFindByIdContaApi,
-  useFindContaByNumeroAndAgencia,
-  useFindPageContaApi
-} from "@/service/conta.api";
+import { API_URL, useFindPageMovimentacaoApi, useRemoveMovimentacaoApi } from "@/service/movimentacao.api";
+import { useFindByIdContaApi } from "@/service/conta.api";
 import type { Correntista } from "@/entity/correntista.entity";
-import { useFindByIdSaldoApi } from "@/service/saldo.api";
 
 const route = useRoute();
 const router = useRouter();
-const toast = useToast();
-const findPageContaApi = useFindPageContaApi();
-const findContaByNumeroAndAgenciaApi = useFindContaByNumeroAndAgencia();
 const findPageApi = useFindPageMovimentacaoApi();
 const findByIdContaApi = useFindByIdContaApi();
 const removeApi = useRemoveMovimentacaoApi();
 const fakeMovimentacoes = [{}, {}, {}, {}, {}];
 const search = ref("");
 const conta = ref();
-const contas = ref<Conta[]>();
 const numeroConta = ref<number>();
 const agenciaConta = ref("");
 const correntista = ref<Correntista>({
@@ -40,7 +25,6 @@ const correntista = ref<Correntista>({
 });
 
 async function doSearchConta() {
-  console.log(`doSearchConta`);
   if (conta.value?.id) {
     findPageApi.apiUrl = `${API_URL}/extrato/${conta.value.id}`;
     await findPageApi.doFetch(0, 5, conta.value.id.toString());
@@ -48,7 +32,6 @@ async function doSearchConta() {
 }
 
 async function doSearchContaById(id: number) {
-  console.log(`doSearchContaById: ${id}`);
   if (id) {
     await findByIdContaApi.doFetch(id).then(() => {
       conta.value = findByIdContaApi.entity.value;
@@ -61,52 +44,15 @@ async function doSearchContaById(id: number) {
 
 watch(conta, doSearchConta);
 
-async function doSearchContaNumeroAgencia() {
-  console.log(`doSearchContaNumeroAgencia: ${numeroConta?.value}/${agenciaConta?.value}`);
-  if (numeroConta?.value && agenciaConta?.value) {
-    await findContaByNumeroAndAgenciaApi
-      .doFetch(numeroConta.value, agenciaConta.value)
-      .then(() => {
-        conta.value = findContaByNumeroAndAgenciaApi.entity.value;
-        correntista.value = conta.value.correntista;
-      });
-  }
-}
-
-// watch(numeroConta, doSearchContaNumeroAgencia);
-// watch(agenciaConta, doSearchContaNumeroAgencia);
-
 onMounted(() => {
-  if (route.params?.id === "") {
-    // saldo.value = {};
-  } else {
+  if (route.params?.id !== "") {
     const id = parseInt(route.params?.id.toString());
     doSearchContaById(id);
-    // doSearchConta();
   }
 });
 
-function searchConta(event: any) {
-  console.log(`searchConta: ${event.query}`);
-  findPageContaApi.doFetch(0, 5, conta.value).then(() => {
-    contas.value = findPageContaApi.page.value.content;
-  });
-}
-
 function rowClick(event: any) {
   router.push({ name: "movimentacao-detail", params: { id: event.data.id } });
-}
-
-function removeMovimentacao(id: number) {
-  removeApi.doFetch(id).then(() => {
-    toast.add({
-      severity: "success",
-      summary: "Success",
-      detail: `Movimentacao removed: ${id}`,
-      life: 3000,
-    });
-    refresh();
-  });
 }
 
 function isRemoving(id: number) {
@@ -126,10 +72,6 @@ async function doSearch() {
 }
 
 watch(search, doSearch);
-
-function newMovimentacao() {
-  router.push({ name: "movimentacao-detail", params: { id: null } });
-}
 
 const formatDecimal = (value: string) => {
   if (value)
@@ -168,34 +110,23 @@ function onPage(event: any) {
 <template>
   <Card>
     <template #header>
-<!--      <div class="field">-->
-<!--        <label for="conta" class="mr-2">Conta</label>-->
-<!--        <AutoComplete-->
-<!--          id="conta"-->
-<!--          v-model="conta"-->
-<!--          loading-icon="null"-->
-<!--          :suggestions="contas"-->
-<!--          option-label="numero"-->
-<!--          @complete="searchConta($event)"-->
-<!--        >-->
-<!--          <template #option="slotProps">-->
-<!--            <div>-->
-<!--              {{ slotProps.option.numero }} / {{ slotProps.option.agencia }} - -->
-<!--              {{ slotProps.option.correntista.nome }}-->
-<!--            </div>-->
-<!--          </template>-->
-<!--        </AutoComplete>-->
-<!--      </div>-->
-<!--      <Toolbar>-->
-<!--        <template #start>-->
-<!--        </template>-->
-<!--        <template #end>-->
-<!--        </template>-->
-<!--      </Toolbar>-->
-    </template>
-    <template #content>
-      <panel header="Conta" class="mb-2">
+      <panel header="Conta" class="">
         <div class="field">
+          <router-link to="/list-conta" custom v-slot="{ navigate }">
+            <Button
+              v-tooltip="'Back to the conta list'"
+              icon="pi pi-arrow-left"
+              class="p-button-secondary p-button-raised mr-2"
+              role="link"
+              @click="navigate"
+            />
+          </router-link>
+          <Button
+            icon="pi pi-refresh"
+            class="p-button-raised mr-2"
+            :loading="false"
+            @click="refresh()"
+          />
           <label for="numeroConta" class="mr-2">Número</label>
           <InputNumber input-id="numeroConta" v-model="numeroConta" disabled />
           <label for="agenciaConta" class="ml-2 mr-2">Agência</label>
@@ -204,6 +135,8 @@ function onPage(event: any) {
           <InputText id="nomeCorrentista" type="text" v-model="correntista.nome" disabled />
         </div>
       </panel>
+    </template>
+    <template #content>
       <div v-if="findPageApi.error.value">
         <p>Oops! Error encountered: {{ findPageApi.error.value?.message }}</p>
       </div>
@@ -275,15 +208,6 @@ function onPage(event: any) {
               <Skeleton height="1.1rem" />
             </template>
           </Column>
-          <Column
-            header="Actions"
-            headerStyle="width: 10%"
-            class="cursor-pointer"
-          >
-            <template #body>
-              <Skeleton height="1.1rem" />
-            </template>
-          </Column>
         </DataTable>
       </div>
       <div v-else-if="findPageApi.page.value?.content">
@@ -293,7 +217,13 @@ function onPage(event: any) {
           :value="findPageApi.page.value.content"
           :rowHover="true"
           @row-click="rowClick($event)"
+          class="mt-2"
         >
+          <template #header>
+            <div class="flex flex-wrap gap-2 align-items-center justify-content-between">
+              <h4 class="m-0">Movimentação</h4>
+            </div>
+          </template>
           <Column
             field="id"
             header="Id"
@@ -349,7 +279,7 @@ function onPage(event: any) {
                 style="text-align: right"
                 v-bind:class="{ 'line-through': isRemoving(slotProps.data.id) }"
               >
-                {{ formatDecimal(slotProps.data.saldoAnterior) }}
+                {{ formatDecimal(slotProps.data.saldoAnterior.toFixed(2)) }}
               </div>
             </template>
           </Column>
@@ -364,7 +294,7 @@ function onPage(event: any) {
                 style="text-align: right"
                 v-bind:class="{ 'line-through': isRemoving(slotProps.data.id) }"
               >
-                {{ formatDecimal(slotProps.data.valor) }}
+                {{ formatDecimal(slotProps.data.valor.toFixed(2)) }}
               </div>
             </template>
           </Column>
@@ -380,23 +310,6 @@ function onPage(event: any) {
                 v-bind:class="{ 'line-through': isRemoving(slotProps.data.id) }"
               >
                 {{ formatDecimal(slotProps.data.tipo === 'DEBITO' ? slotProps.data.saldoAnterior - slotProps.data.valor : slotProps.data.saldoAnterior + slotProps.data.valor) }}
-              </div>
-            </template>
-          </Column>
-          <Column
-            header="Actions"
-            headerStyle="width: 10%"
-            class="cursor-pointer"
-          >
-            <template #body="slotProps">
-              <div style="text-align: center">
-                <Button
-                  icon="pi pi-trash"
-                  class="p-button-danger p-button-text p-button-sm p-0"
-                  v-tooltip.left="'Remove'"
-                  :loading="isRemoving(slotProps.data.id)"
-                  @click="removeMovimentacao(slotProps.data.id)"
-                />
               </div>
             </template>
           </Column>

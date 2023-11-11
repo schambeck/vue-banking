@@ -1,32 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import {
-  useCreateSaldoApi,
-  useFindByIdSaldoApi,
-  useUpdateSaldoApi,
-} from "@/service/saldo.api";
-import { useToast } from "primevue/usetoast";
+import { onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
+import { useCreateSaldoApi, useFindByIdSaldoApi } from "@/service/saldo.api";
 
 const route = useRoute();
-const router = useRouter();
-const toast = useToast();
 const createApi = useCreateSaldoApi();
-const updateApi = useUpdateSaldoApi();
 const findByIdApi = useFindByIdSaldoApi();
 const saldo = ref();
-
-const processing = computed(() => {
-  return (
-    createApi.processing.value ||
-    updateApi.processing.value ||
-    findByIdApi.processing.value
-  );
-});
-
-const saving = computed(() => {
-  return createApi.processing.value || updateApi.processing.value;
-});
 
 onMounted(() => {
   if (route.params.id === "") {
@@ -38,45 +18,6 @@ onMounted(() => {
       .then(() => (saldo.value = findByIdApi.entity.value));
   }
 });
-
-function newSaldo() {
-  saldo.value = {};
-}
-
-function save() {
-  if (saldo.value) {
-    if (saldo.value.id) {
-      const id = parseInt(route.params.id.toString());
-      updateApi.doFetch(id, saldo.value).then(() => {
-        if (updateApi.error.value == null) {
-          toast.add({
-            severity: "success",
-            summary: "Success",
-            detail: `Saldo updated: ${updateApi.entity.value?.id}`,
-            life: 3000,
-          });
-          router.push({ name: "list-saldo" });
-          saldo.value = updateApi.entity.value;
-        }
-        return saldo.value;
-      });
-    } else {
-      createApi.doFetch(saldo.value).then(() => {
-        if (createApi.error.value == null) {
-          toast.add({
-            severity: "success",
-            summary: "Success",
-            detail: `Saldo created: ${createApi.entity.value?.id}`,
-            life: 3000,
-          });
-          router.push({ name: "list-saldo" });
-          saldo.value = createApi.entity.value;
-        }
-        return saldo.value;
-      });
-    }
-  }
-}
 </script>
 
 <style scoped>
@@ -145,8 +86,8 @@ function save() {
         </div>
         <div class="field">
           <label for="conta" class="w-full">Conta</label>
-          <InputText id="conta" type="text" v-model="saldo.conta.numero" />
-          <InputText id="contaAgencia" type="text" v-model="saldo.conta.agencia" />
+          <InputText id="conta" type="text" v-model="saldo.conta.numero" disabled />
+          <InputText id="contaAgencia" type="text" v-model="saldo.conta.agencia" disabled />
         </div>
         <div class="field" style="margin-bottom: 0">
           <label for="valor" class="w-full">Valor</label>
@@ -157,6 +98,7 @@ function save() {
             locale="pt-BR"
             :minFractionDigits="2"
             :maxFractionDigits="2"
+            disabled
           />
         </div>
       </div>

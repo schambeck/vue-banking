@@ -1,5 +1,5 @@
 <template>
-  <panel header="Movimentacao" class="shadow-4">
+  <panel header="Movimento" class="shadow-4">
     <MovimentacaoDetail />
   </panel>
 </template>
