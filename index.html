@@ -7,6 +7,9 @@
     <title>Banking</title>
   </head>
   <body>
+    <script>
+      parent.postMessage(location.href, location.origin);
+    </script>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

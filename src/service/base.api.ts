@@ -1,6 +1,7 @@
 import type { Paginated } from "@/pagination/paginated";
 import type { Ref } from "vue";
 import { ref } from "vue";
+import { keycloak } from "@/main";
 
 export class BaseCreate<T> {
   constructor(public apiUrl: string) {}
@@ -12,9 +13,15 @@ export class BaseCreate<T> {
     this.error.value = undefined;
     this.processing.value = true;
 
+    try {
+      await keycloak.updateToken(30);
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
+    }
+
     const res = await fetch(`${this.apiUrl}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", authorization: `Bearer ${keycloak.token}` },
       body: JSON.stringify(entity),
     });
     const response = await res.json();
@@ -38,9 +45,15 @@ export class BaseUpdate<T, ID> {
     this.error.value = undefined;
     this.processing.value = true;
 
+    try {
+      await keycloak.updateToken(30);
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
+    }
+
     const res = await fetch(`${this.apiUrl}/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", authorization: `Bearer ${keycloak.token}` },
       body: JSON.stringify(entity),
     });
     const response = await res.json();
@@ -64,7 +77,18 @@ export class BaseFindById<T, ID> {
     this.error.value = undefined;
     this.processing.value = true;
 
-    const res = await fetch(`${this.apiUrl}/${id}`);
+    try {
+      await keycloak.updateToken(30);
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
+    }
+
+    const res = await fetch(`${this.apiUrl}/${id}`, {
+      headers: {
+        accept: "application/json",
+        authorization: `Bearer ${keycloak.token}`,
+      },
+    });
     const response = await res.json();
     if (res.ok) {
       this.entity.value = response;
@@ -86,7 +110,18 @@ export class BaseFindPage<T> {
     this.error.value = undefined;
     this.processing.value = true;
 
-    const res = await fetch(this.getUrl(pageNumber, limit, text));
+    try {
+      await keycloak.updateToken(30);
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
+    }
+
+    const res = await fetch(this.getUrl(pageNumber, limit, text), {
+      headers: {
+        accept: "application/json",
+        authorization: `Bearer ${keycloak.token}`,
+      },
+    });
     const response = await res.json();
     if (res.ok) {
       this.page.value = response;
@@ -118,8 +153,15 @@ export class BaseRemove<ID> {
     this.processing.value = true;
     this.removing.value.push(id);
 
+    try {
+      await keycloak.updateToken(30);
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
+    }
+
     const res = await fetch(`${this.apiUrl}/${id}`, {
       method: "DELETE",
+      headers: { authorization: `Bearer ${keycloak.token}` },
     });
     if (!res.ok) {
       const response = await res.json();

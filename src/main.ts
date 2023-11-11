@@ -31,6 +31,7 @@ import Ripple from "primevue/ripple";
 import ToastService from "primevue/toastservice";
 import Calendar from "primevue/calendar";
 import Breadcrumb from "primevue/breadcrumb";
+import Keycloak from 'keycloak-js';
 
 const app = createApp(App);
 
@@ -50,6 +51,7 @@ app.component("Calendar", Calendar);
 app.component("DataTable", DataTable);
 app.component("Divider", Divider);
 app.component("Steps", Steps);
+app.component("Breadcrumb", Breadcrumb);
 app.component("AutoComplete", AutoComplete);
 app.component("InputText", InputText);
 app.component("InputNumber", InputNumber);
@@ -58,3 +60,18 @@ app.directive("FocusTrap", FocusTrap);
 app.directive("tooltip", Tooltip);
 app.directive("ripple", Ripple);
 app.mount("#app");
+
+export const keycloak = new Keycloak({
+  url: "http://localhost:9000",
+  realm: "banking",
+  clientId: "vue-banking",
+});
+
+try {
+  const authenticated = await keycloak.init({
+    onLoad: "login-required",
+  });
+  console.log(`User is ${authenticated ? 'authenticated' : 'not authenticated'}`);
+} catch (error) {
+  console.error('Failed to initialize adapter:', error);
+}
